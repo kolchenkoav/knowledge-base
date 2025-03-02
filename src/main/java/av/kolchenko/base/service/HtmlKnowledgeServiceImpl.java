@@ -44,12 +44,51 @@ public class HtmlKnowledgeServiceImpl implements HtmlKnowledgeService {
         String questionHtml = convertMarkdownToHtml(knowledge.getQuestion());
         String answerHtml = convertMarkdownToHtml(knowledge.getAnswer());
 
-        // Создание нового DTO с HTML содержимым
         return new KnowledgeDtoV1(
                 questionHtml,
                 answerHtml,
                 knowledge.getBookmark(),
                 knowledge.getTopic()
+        );
+    }
+
+    @Override
+    public KnowledgeDtoV1 getKnowledgeRaw(Long id) {
+        Knowledge knowledge = knowledgeRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Запись с id `%s` не найдена".formatted(id)
+                ));
+
+        return knowledgeMapper.toKnowledgeDtoV1(knowledge); // Возвращаем без преобразования в HTML
+    }
+
+    @Override
+    public KnowledgeDtoV1 updateKnowledge(Long id, KnowledgeDtoV1 dto) {
+        Knowledge knowledge = knowledgeRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Запись с id `%s` не найдена".formatted(id)
+                ));
+
+        // Обновляем поля сущности
+        knowledge.setQuestion(dto.getQuestion());
+        knowledge.setAnswer(dto.getAnswer());
+        knowledge.setBookmark(dto.getBookmark());
+        knowledge.setTopic(dto.getTopic());
+
+        // Сохраняем изменения
+        Knowledge updatedKnowledge = knowledgeRepository.save(knowledge);
+
+        // Преобразуем markdown в HTML для возврата
+        String questionHtml = convertMarkdownToHtml(updatedKnowledge.getQuestion());
+        String answerHtml = convertMarkdownToHtml(updatedKnowledge.getAnswer());
+
+        return new KnowledgeDtoV1(
+                questionHtml,
+                answerHtml,
+                updatedKnowledge.getBookmark(),
+                updatedKnowledge.getTopic()
         );
     }
 

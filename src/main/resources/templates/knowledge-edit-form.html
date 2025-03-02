@@ -1,0 +1,80 @@
+<!-- src/main/resources/templates/knowledge-edit-form.html -->
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактирование записи знаний</title>
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .field {
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        select {
+            padding: 5px;
+            border-radius: 4px;
+        }
+        .save-button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .save-button:hover {
+            background-color: #45a049;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Редактирование записи</h1>
+    <form th:action="@{'/api/v2/' + ${id} + '/edit'}" th:object="${knowledge}" method="post">
+        <div class="field">
+            <label for="question">Вопрос (Markdown):</label>
+            <textarea id="question" th:field="*{question}" name="question"></textarea>
+        </div>
+
+        <div class="field">
+            <label for="answer">Ответ (Markdown):</label>
+            <textarea id="answer" th:field="*{answer}" name="answer"></textarea>
+        </div>
+
+        <div class="field">
+            <label for="bookmark">Закладка:</label>
+            <input type="checkbox" id="bookmark" th:field="*{bookmark}" name="bookmark">
+        </div>
+
+        <div class="field">
+            <label for="topic">Тема:</label>
+            <select id="topic" th:field="*{topic}" name="topic">
+                <option th:each="topic : ${T(av.kolchenko.base.entity.TopicType).values()}"
+                        th:value="${topic}"
+                        th:text="${topic}"></option>
+            </select>
+        </div>
+
+        <div>
+            <button type="submit" class="save-button">Сохранить</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>
