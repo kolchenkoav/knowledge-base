@@ -1,7 +1,7 @@
 package av.kolchenko.base.service;
 
-import av.kolchenko.base.KnowledgeDtoV1;
-import av.kolchenko.base.KnowledgeFilter;
+import av.kolchenko.base.web.dto.KnowledgeDtoV1;
+import av.kolchenko.base.web.filter.KnowledgeFilter;
 import av.kolchenko.base.entity.Knowledge;
 import av.kolchenko.base.mapper.KnowledgeMapper;
 import av.kolchenko.base.repository.KnowledgeRepository;

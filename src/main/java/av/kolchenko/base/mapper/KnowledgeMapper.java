@@ -1,6 +1,6 @@
 package av.kolchenko.base.mapper;
 
-import av.kolchenko.base.KnowledgeDtoV1;
+import av.kolchenko.base.web.dto.KnowledgeDtoV1;
 import av.kolchenko.base.entity.Knowledge;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;

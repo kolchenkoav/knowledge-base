@@ -1,7 +1,7 @@
-package av.kolchenko.base.controller;
+package av.kolchenko.base.web.controller;
 
-import av.kolchenko.base.KnowledgeDtoV1;
-import av.kolchenko.base.KnowledgeFilter;
+import av.kolchenko.base.web.dto.KnowledgeDtoV1;
+import av.kolchenko.base.web.filter.KnowledgeFilter;
 import av.kolchenko.base.service.KnowledgeService;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springdoc.core.annotations.ParameterObject;

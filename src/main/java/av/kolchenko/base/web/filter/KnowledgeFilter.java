@@ -1,4 +1,4 @@
-package av.kolchenko.base;
+package av.kolchenko.base.web.filter;
 
 import av.kolchenko.base.entity.Knowledge;
 import av.kolchenko.base.entity.TopicType;

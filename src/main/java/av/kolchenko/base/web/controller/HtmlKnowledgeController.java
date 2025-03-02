@@ -1,7 +1,7 @@
 // src/main/java/av/kolchenko/base/controller/HtmlKnowledgeController.java
-package av.kolchenko.base.controller;
+package av.kolchenko.base.web.controller;
 
-import av.kolchenko.base.KnowledgeDtoV1;
+import av.kolchenko.base.web.dto.KnowledgeDtoV1;
 import av.kolchenko.base.service.HtmlKnowledgeService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

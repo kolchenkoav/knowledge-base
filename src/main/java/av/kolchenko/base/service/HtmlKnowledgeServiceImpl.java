@@ -1,7 +1,7 @@
 // src/main/java/av/kolchenko/base/service/HtmlKnowledgeServiceImpl.java
 package av.kolchenko.base.service;
 
-import av.kolchenko.base.KnowledgeDtoV1;
+import av.kolchenko.base.web.dto.KnowledgeDtoV1;
 import av.kolchenko.base.entity.Knowledge;
 import av.kolchenko.base.mapper.KnowledgeMapper;
 import av.kolchenko.base.repository.KnowledgeRepository;

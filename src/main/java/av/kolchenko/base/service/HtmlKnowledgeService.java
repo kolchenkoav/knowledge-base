@@ -1,6 +1,6 @@
 package av.kolchenko.base.service;
 
-import av.kolchenko.base.KnowledgeDtoV1;
+import av.kolchenko.base.web.dto.KnowledgeDtoV1;
 
 public interface HtmlKnowledgeService {
     KnowledgeDtoV1 getKnowledgeAsHtml(Long id);

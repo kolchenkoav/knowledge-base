@@ -1,4 +1,4 @@
-package av.kolchenko.base;
+package av.kolchenko.base.web.dto;
 
 import av.kolchenko.base.entity.TopicType;
 

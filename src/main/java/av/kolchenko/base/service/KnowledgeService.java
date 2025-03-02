@@ -1,7 +1,7 @@
 package av.kolchenko.base.service;
 
-import av.kolchenko.base.KnowledgeDtoV1;
-import av.kolchenko.base.KnowledgeFilter;
+import av.kolchenko.base.web.dto.KnowledgeDtoV1;
+import av.kolchenko.base.web.filter.KnowledgeFilter;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
