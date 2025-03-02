@@ -43,6 +43,13 @@ public class KnowledgeServiceImpl implements KnowledgeService {
         return knowledges.map(knowledgeMapper::toKnowledgeDtoV1);
     }
 
+//    @Override
+//    public Page<KnowledgeDtoV1> getAll(KnowledgeFilter filter, Pageable pageable) {
+//        Specification<Knowledge> spec = filter.toSpecification();
+//        Page<Knowledge> knowledges = knowledgeRepository.findAll(spec, pageable);
+//        return knowledges.map(knowledgeMapper::toKnowledgeDtoV1);
+//    }
+
     @Override
     public KnowledgeDtoV1 getOne(Long id) {
         Optional<Knowledge> knowledgeOptional = knowledgeRepository.findById(id);

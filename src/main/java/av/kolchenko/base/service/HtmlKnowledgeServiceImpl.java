@@ -1,4 +1,3 @@
-// src/main/java/av/kolchenko/base/service/HtmlKnowledgeServiceImpl.java
 package av.kolchenko.base.service;
 
 import av.kolchenko.base.web.dto.KnowledgeDtoV1;
@@ -25,8 +24,6 @@ public class HtmlKnowledgeServiceImpl implements HtmlKnowledgeService {
                                     KnowledgeMapper knowledgeMapper) {
         this.knowledgeRepository = knowledgeRepository;
         this.knowledgeMapper = knowledgeMapper;
-
-        // Инициализация парсера и рендерера markdown
         MutableDataSet options = new MutableDataSet();
         this.markdownParser = Parser.builder(options).build();
         this.htmlRenderer = HtmlRenderer.builder(options).build();
@@ -40,16 +37,17 @@ public class HtmlKnowledgeServiceImpl implements HtmlKnowledgeService {
                         "Запись с id `%s` не найдена".formatted(id)
                 ));
 
-        // Преобразование markdown в HTML
         String questionHtml = convertMarkdownToHtml(knowledge.getQuestion());
         String answerHtml = convertMarkdownToHtml(knowledge.getAnswer());
-
-        return new KnowledgeDtoV1(
+        KnowledgeDtoV1 dto = new KnowledgeDtoV1(
+                knowledge.getId(),
                 questionHtml,
                 answerHtml,
                 knowledge.getBookmark(),
                 knowledge.getTopic()
         );
+        dto.setShortAnswer(convertMarkdownToHtml(truncateAnswer(knowledge.getAnswer())));
+        return dto;
     }
 
     @Override
@@ -59,8 +57,7 @@ public class HtmlKnowledgeServiceImpl implements HtmlKnowledgeService {
                         HttpStatus.NOT_FOUND,
                         "Запись с id `%s` не найдена".formatted(id)
                 ));
-
-        return knowledgeMapper.toKnowledgeDtoV1(knowledge); // Возвращаем без преобразования в HTML
+        return knowledgeMapper.toKnowledgeDtoV1(knowledge);
     }
 
     @Override
@@ -83,13 +80,17 @@ public class HtmlKnowledgeServiceImpl implements HtmlKnowledgeService {
         // Преобразуем markdown в HTML для возврата
         String questionHtml = convertMarkdownToHtml(updatedKnowledge.getQuestion());
         String answerHtml = convertMarkdownToHtml(updatedKnowledge.getAnswer());
+        String shortAnswerHtml = convertMarkdownToHtml(truncateAnswer(updatedKnowledge.getAnswer()));
 
-        return new KnowledgeDtoV1(
+        KnowledgeDtoV1 resultDto = new KnowledgeDtoV1(
+                updatedKnowledge.getId(),
                 questionHtml,
                 answerHtml,
                 updatedKnowledge.getBookmark(),
                 updatedKnowledge.getTopic()
         );
+        resultDto.setShortAnswer(shortAnswerHtml); // Устанавливаем shortAnswer
+        return resultDto;
     }
 
     private String convertMarkdownToHtml(String markdown) {
@@ -98,5 +99,12 @@ public class HtmlKnowledgeServiceImpl implements HtmlKnowledgeService {
         }
         Node document = markdownParser.parse(markdown);
         return htmlRenderer.render(document);
+    }
+
+    private String truncateAnswer(String fullAnswer) {
+        if (fullAnswer == null || fullAnswer.length() <= 100) {
+            return fullAnswer;
+        }
+        return fullAnswer.substring(0, 100) + "...";
     }
 }

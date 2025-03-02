@@ -45,7 +45,8 @@ public class HtmlKnowledgeController {
                                       @ModelAttribute KnowledgeDtoV1 updatedKnowledge,
                                       Model model) {
         htmlKnowledgeService.updateKnowledge(id, updatedKnowledge);
-        return "redirect:/api/v2/" + id; // Перенаправляем на страницу просмотра
+        //return "redirect:/api/v2/" + id; // Перенаправляем на страницу просмотра
+        return "redirect:/api/v2/all"; // Перенаправляем на список
     }
 
     @GetMapping("/all")
@@ -60,7 +61,7 @@ public class HtmlKnowledgeController {
 
     @GetMapping("/new")
     public String showCreateForm(Model model) {
-        model.addAttribute("knowledge", new KnowledgeDtoV1("", "", false, null));
+        model.addAttribute("knowledge", new KnowledgeDtoV1(0L, "", "", false, null));
         return "knowledge-create-form"; // Reuse or create a new form for creation
     }
 
