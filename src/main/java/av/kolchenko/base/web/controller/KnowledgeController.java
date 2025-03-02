@@ -23,7 +23,7 @@ public class KnowledgeController {
         this.knowledgeService = knowledgeService;
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public PagedModel<KnowledgeDtoV1> getAll(@ParameterObject @ModelAttribute KnowledgeFilter filter, @ParameterObject Pageable pageable) {
         Page<KnowledgeDtoV1> knowledgeDtoV1s = knowledgeService.getAll(filter, pageable);
         return new PagedModel<>(knowledgeDtoV1s);
