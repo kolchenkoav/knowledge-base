@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Запись знаний</title>
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .field {
+            margin-bottom: 20px;
+        }
+        .question, .answer {
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .metadata {
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="field">
+        <h2>Вопрос:</h2>
+        <div class="question" th:utext="${knowledge.question}"></div>
+    </div>
+
+    <div class="field">
+        <h2>Ответ:</h2>
+        <div class="answer" th:utext="${knowledge.answer}"></div>
+    </div>
+
+    <div class="metadata">
+        <p>Закладка: <span th:text="${knowledge.bookmark ? 'Да' : 'Нет'}"></span></p>
+        <p>Тема: <span th:text="${knowledge.topic}"></span></p>
+    </div>
+</div>
+</body>
+</html>
