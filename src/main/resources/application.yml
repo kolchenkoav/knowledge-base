@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: knowledge-base
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+      show-sql: true
+    generate-ddl: true
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/knowledgedb
+    username: postgres
+    password: postgres
+    hikari:
+      schema: knowledgedb_schema
+      connection-timeout: 10000
+
+server:
+  port: 8085
+
+parser:
+  input-file-path: "e:/Основы Backend-разработки-chg.md"
+  output-file-path: "e:/"
+  theme: "Backend-разработка"

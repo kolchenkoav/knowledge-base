@@ -1,0 +1,2 @@
+CREATE SCHEMA IF NOT EXISTS knowledgedb_schema;
+CREATE DATABASE IF NOT EXISTS knowledgedb;
