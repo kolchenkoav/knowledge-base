@@ -20,7 +20,7 @@ public class Knowledge {
     private Boolean bookmark;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "topic")
+    @Column(name = "topic", columnDefinition = "VARCHAR(255) default 'Java'")
     private TopicType topic;
 
     public TopicType getTopic() {

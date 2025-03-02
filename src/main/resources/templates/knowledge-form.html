@@ -22,16 +22,31 @@
             color: #666;
             font-size: 0.9em;
         }
-        .edit-button {
+        .edit-button, .export-button {
             padding: 10px 20px;
-            background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        .edit-button {
+            background-color: #4CAF50;
         }
         .edit-button:hover {
             background-color: #45a049;
+        }
+        .export-button {
+            background-color: #2196F3;
+        }
+        .export-button:hover {
+            background-color: #1976D2;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -54,7 +69,12 @@
 
     <div>
         <a th:href="@{'/api/v2/' + ${id} + '/edit'}" class="edit-button">Редактировать</a>
+        <form th:action="@{'/api/v2/' + ${id} + '/export-md'}" method="post" style="display:inline;">
+            <button type="submit" class="export-button">Экспорт в md</button>
+        </form>
     </div>
+
+    <div class="error" th:if="${error}" th:text="${error}"></div>
 </div>
 </body>
 </html>

@@ -5,6 +5,9 @@ import av.kolchenko.base.service.KnowledgeService;
 import av.kolchenko.base.web.dto.KnowledgeDtoV1;
 import av.kolchenko.base.service.HtmlKnowledgeService;
 import av.kolchenko.base.web.filter.KnowledgeFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -12,12 +15,20 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 @Controller
 @RequestMapping("/api/v2")
 public class HtmlKnowledgeController {
 
+    private static final Logger logger = LoggerFactory.getLogger(HtmlKnowledgeController.class);
+
     private final HtmlKnowledgeService htmlKnowledgeService;
     private final KnowledgeService knowledgeService;
+
+    @Value("${parser.output-file-path}")
+    private String exportPath;
 
     public HtmlKnowledgeController(HtmlKnowledgeService htmlKnowledgeService, KnowledgeService knowledgeService) {
         this.htmlKnowledgeService = htmlKnowledgeService;
@@ -74,5 +85,78 @@ public class HtmlKnowledgeController {
     public String deleteKnowledge(@PathVariable Long id) {
         knowledgeService.delete(id);
         return "redirect:/api/v2/all";
+    }
+
+    @PostMapping("/{id}/export-md")
+    public String exportToMarkdown(@PathVariable Long id, Model model) {
+        try {
+            htmlKnowledgeService.exportToMarkdown(id, exportPath);
+        } catch (Exception e) {
+            logger.error("Ошибка при экспорте в Markdown для ID {}: {}", id, e.getMessage(), e);
+            model.addAttribute("error", "Не удалось экспортировать файл: " + e.getMessage());
+            KnowledgeDtoV1 knowledge = htmlKnowledgeService.getKnowledgeAsHtml(id);
+            model.addAttribute("knowledge", knowledge);
+            model.addAttribute("id", id);
+            return "knowledge-form";
+        }
+        return "redirect:/api/v2/" + id;
+    }
+
+    // Новый метод для загрузки из Markdown
+    @PostMapping("/{id}/import-md")
+    public String importFromMarkdown(@PathVariable Long id,
+                                     @RequestParam("filePath") String filePath,
+                                     Model model) {
+        try {
+            String content = new String(Files.readAllBytes(Paths.get(filePath)));
+            logger.info("Загрузка данных из файла: {}", filePath);
+
+            // Парсинг структуры Markdown
+            String topic = "";
+            String question = "";
+            String answer = "";
+            String[] lines = content.split("\n");
+
+            int section = 0; // 0 - Topic, 1 - Question, 2 - Answer
+            StringBuilder currentSection = new StringBuilder();
+            for (String line : lines) {
+                if (line.startsWith("Topic:")) {
+                    section = 0;
+                    continue;
+                } else if (line.startsWith("Question:")) {
+                    topic = currentSection.toString().replaceAll("^#+\\s*", "").trim();
+                    currentSection = new StringBuilder();
+                    section = 1;
+                    continue;
+                } else if (line.startsWith("Answer:")) {
+                    question = currentSection.toString().replaceAll("^#+\\s*", "").trim();
+                    currentSection = new StringBuilder();
+                    section = 2;
+                    continue;
+                }
+                currentSection.append(line).append("\n");
+            }
+            answer = currentSection.toString().trim();
+
+            // Создаем DTO с загруженными данными
+            KnowledgeDtoV1 importedKnowledge = new KnowledgeDtoV1(
+                    id,
+                    question,
+                    answer,
+                    false, // bookmark по умолчанию false
+                    topic.isEmpty() ? null : av.kolchenko.base.entity.TopicType.valueOf(topic) // Предполагаем, что topic соответствует enum
+            );
+
+            model.addAttribute("knowledge", importedKnowledge);
+            model.addAttribute("id", id);
+            return "knowledge-edit-form"; // Возвращаем форму с заполненными данными
+        } catch (Exception e) {
+            logger.error("Ошибка при импорте из Markdown: {}", e.getMessage(), e);
+            model.addAttribute("error", "Не удалось загрузить файл: " + e.getMessage());
+            KnowledgeDtoV1 knowledge = htmlKnowledgeService.getKnowledgeRaw(id);
+            model.addAttribute("knowledge", knowledge);
+            model.addAttribute("id", id);
+            return "knowledge-edit-form";
+        }
     }
 }
