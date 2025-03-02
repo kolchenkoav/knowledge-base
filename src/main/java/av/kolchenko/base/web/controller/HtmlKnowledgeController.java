@@ -9,14 +9,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 @RequestMapping("/api/v2")
@@ -62,10 +62,17 @@ public class HtmlKnowledgeController {
     @GetMapping("/all")
     public String getAllKnowledge(@ModelAttribute KnowledgeFilter filter,
                                   @PageableDefault(size = 10) Pageable pageable,
+                                  @RequestParam(value = "sortField", defaultValue = "id") String sortField,
+                                  @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
                                   Model model) {
-        Page<KnowledgeDtoV1> knowledgePage = knowledgeService.getAll(filter, pageable);
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortField);
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+
+        Page<KnowledgeDtoV1> knowledgePage = knowledgeService.getAll(filter, sortedPageable);
         model.addAttribute("knowledgePage", knowledgePage);
         model.addAttribute("filter", filter);
+        model.addAttribute("sortField", sortField);
+        model.addAttribute("sortDirection", sortDirection);
         return "knowledge-list";
     }
 
@@ -102,56 +109,17 @@ public class HtmlKnowledgeController {
         return "redirect:/api/v2/" + id;
     }
 
-    // Новый метод для загрузки из Markdown
     @PostMapping("/{id}/import-md")
     public String importFromMarkdown(@PathVariable Long id,
-                                     @RequestParam("filePath") String filePath,
+                                     @RequestParam("markdownFile") MultipartFile file,
                                      Model model) {
         try {
-            String content = new String(Files.readAllBytes(Paths.get(filePath)));
-            logger.info("Загрузка данных из файла: {}", filePath);
-
-            // Парсинг структуры Markdown
-            String topic = "";
-            String question = "";
-            String answer = "";
-            String[] lines = content.split("\n");
-
-            int section = 0; // 0 - Topic, 1 - Question, 2 - Answer
-            StringBuilder currentSection = new StringBuilder();
-            for (String line : lines) {
-                if (line.startsWith("Topic:")) {
-                    section = 0;
-                    continue;
-                } else if (line.startsWith("Question:")) {
-                    topic = currentSection.toString().replaceAll("^#+\\s*", "").trim();
-                    currentSection = new StringBuilder();
-                    section = 1;
-                    continue;
-                } else if (line.startsWith("Answer:")) {
-                    question = currentSection.toString().replaceAll("^#+\\s*", "").trim();
-                    currentSection = new StringBuilder();
-                    section = 2;
-                    continue;
-                }
-                currentSection.append(line).append("\n");
-            }
-            answer = currentSection.toString().trim();
-
-            // Создаем DTO с загруженными данными
-            KnowledgeDtoV1 importedKnowledge = new KnowledgeDtoV1(
-                    id,
-                    question,
-                    answer,
-                    false, // bookmark по умолчанию false
-                    topic.isEmpty() ? null : av.kolchenko.base.entity.TopicType.valueOf(topic) // Предполагаем, что topic соответствует enum
-            );
-
+            KnowledgeDtoV1 importedKnowledge = htmlKnowledgeService.importFromMarkdown(id, file);
             model.addAttribute("knowledge", importedKnowledge);
             model.addAttribute("id", id);
-            return "knowledge-edit-form"; // Возвращаем форму с заполненными данными
+            return "knowledge-edit-form";
         } catch (Exception e) {
-            logger.error("Ошибка при импорте из Markdown: {}", e.getMessage(), e);
+            logger.error("Ошибка при импорте из Markdown для ID {}: {}", id, e.getMessage(), e);
             model.addAttribute("error", "Не удалось загрузить файл: " + e.getMessage());
             KnowledgeDtoV1 knowledge = htmlKnowledgeService.getKnowledgeRaw(id);
             model.addAttribute("knowledge", knowledge);

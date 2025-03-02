@@ -1,80 +1,165 @@
+<!-- src/main/resources/templates/knowledge-list.html -->
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>Knowledge List</title>
-  <style>
-    table { width: 100%; border-collapse: collapse; }
-    th, td { border: 1px solid #ddd; padding: 8px; }
-    th { background-color: #f2f2f2; }
-    .pagination { margin-top: 20px; }
-  </style>
+    <meta charset="UTF-8">
+    <title>Список знаний</title>
+    <style>
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .action-button {
+            padding: 6px 12px;
+            margin-right: 10px;
+            text-decoration: none;
+            color: white;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .edit-button {
+            background-color: #4CAF50;
+        }
+        .delete-button {
+            background-color: #f44336;
+        }
+        .sort-form, .filter-form {
+            margin-bottom: 20px;
+        }
+        .filter-field {
+            margin-right: 15px;
+        }
+        .pagination {
+            margin-top: 20px;
+        }
+        .pagination a, .pagination span {
+            padding: 5px 10px;
+            margin-right: 5px;
+            text-decoration: none;
+            color: #4CAF50;
+        }
+        .pagination .current {
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
-<h1>Knowledge Base</h1>
+<div class="container">
+    <h1>Список знаний</h1>
+    <a th:href="@{/api/v2/new}" class="action-button edit-button">Добавить новую запись</a>
 
-<!-- Filter Form -->
-<form th:action="@{/api/v2/all}" method="get">
-  <label for="questionContains">Вопрос содержит:</label>
-  <input type="text" id="questionContains" name="questionContains" th:value="${filter.questionContains}"/>
-  <label for="answerContains">Ответ содержит:</label>
-  <input type="text" id="answerContains" name="answerContains" th:value="${filter.answerContains}"/>
-  <label for="bookmark">Закладка:</label>
-  <select id="bookmark" name="bookmark">
-    <option value="">Все</option>
-    <option value="true" th:selected="${filter.bookmark == true}">Да</option>
-    <option value="false" th:selected="${filter.bookmark == false}">Нет</option>
-  </select>
-  <label for="topic">Тема:</label>
-  <select id="topic" name="topic">
-    <option value="">Все</option>
-    <option th:each="topic : ${T(av.kolchenko.base.entity.TopicType).values()}"
-            th:value="${topic}" th:text="${topic}" th:selected="${filter.topic == topic}"></option>
-  </select>
-  <button type="submit">Фильтровать</button>
-</form>
+    <!-- Форма для фильтрации -->
+    <form th:action="@{/api/v2/all}" method="get" class="filter-form" th:object="${filter}">
+        <div class="filter-field">
+            <label for="questionContains">Вопрос содержит:</label>
+            <input type="text" id="questionContains" name="questionContains" th:value="*{questionContains}">
+        </div>
+        <div class="filter-field">
+            <label for="answerContains">Ответ содержит:</label>
+            <input type="text" id="answerContains" name="answerContains" th:value="*{answerContains}">
+        </div>
+        <div class="filter-field">
+            <label for="bookmark">Закладка:</label>
+            <select id="bookmark" name="bookmark">
+                <option value="" th:selected="${filter.bookmark == null}">Все</option>
+                <option value="true" th:selected="${filter.bookmark == true}">Да</option>
+                <option value="false" th:selected="${filter.bookmark == false}">Нет</option>
+            </select>
+        </div>
+        <div class="filter-field">
+            <label for="topic">Тема:</label>
+            <select id="topic" name="topic">
+                <option value="" th:selected="${filter.topic == null}">Все</option>
+                <option th:each="topic : ${T(av.kolchenko.base.entity.TopicType).values()}"
+                        th:value="${topic}"
+                        th:text="${topic}"
+                        th:selected="${filter.topic == topic}"></option>
+            </select>
+        </div>
+        <button type="submit" class="action-button edit-button">Фильтровать</button>
+    </form>
 
-<!-- Knowledge Table -->
-<table>
-  <thead>
-  <tr>
-    <th>ID</th>
-    <th>Вопрос</th>
-    <th>Ответ</th>
-    <th>Закладка</th>
-    <th>Тема</th>
-    <th>Действия</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr th:each="knowledge : ${knowledgePage.content}">
-    <td th:text="${knowledge.id}"></td>
-    <td th:utext="${knowledge.question}"></td>
-    <td th:utext="${knowledge.shortAnswer}"></td> <!-- Используем shortAnswer -->
-    <td th:text="${knowledge.bookmark}"></td>
-    <td th:text="${knowledge.topic}"></td>
-    <td>
-      <a th:href="@{/api/v2/{id}(id=${knowledge.id})}">Просмотр</a>
-      <a th:href="@{/api/v2/{id}/edit(id=${knowledge.id})}">Редактировать</a>
-      <form th:action="@{/api/v2/{id}/delete(id=${knowledge.id})}" method="post" style="display:inline;">
-        <button type="submit" onclick="return confirm('Вы уверены?')">Удалить</button>
-      </form>
-    </td>
-  </tr>
-  </tbody>
-</table>
+    <!-- Форма для сортировки и размера страницы -->
+    <form th:action="@{/api/v2/all}" method="get" class="sort-form">
+        <input type="hidden" name="questionContains" th:value="${filter.questionContains}">
+        <input type="hidden" name="answerContains" th:value="${filter.answerContains}">
+        <input type="hidden" name="bookmark" th:value="${filter.bookmark}">
+        <input type="hidden" name="topic" th:value="${filter.topic}">
+        <label for="sortField">Сортировать по:</label>
+        <select id="sortField" name="sortField">
+            <option value="id" th:selected="${sortField == 'id'}">ID</option>
+            <option value="question" th:selected="${sortField == 'question'}">Вопрос</option>
+            <option value="answer" th:selected="${sortField == 'answer'}">Ответ</option>
+            <option value="topic" th:selected="${sortField == 'topic'}">Тема</option>
+            <option value="bookmark" th:selected="${sortField == 'bookmark'}">Закладка</option>
+        </select>
+        <select id="sortDirection" name="sortDirection">
+            <option value="ASC" th:selected="${sortDirection == 'ASC'}">По возрастанию</option>
+            <option value="DESC" th:selected="${sortDirection == 'DESC'}">По убыванию</option>
+        </select>
+        <label for="size">Записей на странице:</label>
+        <select id="size" name="size">
+            <option value="5" th:selected="${knowledgePage.size == 5}">5</option>
+            <option value="10" th:selected="${knowledgePage.size == 10}">10</option>
+            <option value="20" th:selected="${knowledgePage.size == 20}">20</option>
+        </select>
+        <button type="submit" class="action-button edit-button">Применить</button>
+    </form>
 
-<!-- Pagination -->
-<div class="pagination">
-        <span th:if="${knowledgePage.hasPrevious()}">
-            <a th:href="@{/api/v2/all(page=${knowledgePage.number - 1}, size=${knowledgePage.size}, questionContains=${filter.questionContains}, answerContains=${filter.answerContains}, bookmark=${filter.bookmark}, topic=${filter.topic})}">Предыдущая</a>
-        </span>
-  <span th:text="'Страница ' + ${knowledgePage.number + 1} + ' из ' + ${knowledgePage.totalPages}"></span>
-  <span th:if="${knowledgePage.hasNext()}">
-            <a th:href="@{/api/v2/all(page=${knowledgePage.number + 1}, size=${knowledgePage.size}, questionContains=${filter.questionContains}, answerContains=${filter.answerContains}, bookmark=${filter.bookmark}, topic=${filter.topic})}">Следующая</a>
-        </span>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Вопрос</th>
+            <th>Краткий ответ</th>
+            <th>Тема</th>
+            <th>Действия</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="knowledge : ${knowledgePage.content}">
+            <td th:text="${knowledge.id}"></td>
+            <td th:text="${knowledge.question}"></td>
+            <td th:text="${knowledge.shortAnswer}"></td>
+            <td th:text="${knowledge.topic}"></td>
+            <td>
+                <a th:href="@{'/api/v2/' + ${knowledge.id}}" class="action-button edit-button">Просмотр</a>
+                <a th:href="@{'/api/v2/' + ${knowledge.id} + '/edit'}" class="action-button edit-button">Редактировать</a>
+                <form th:action="@{'/api/v2/' + ${knowledge.id} + '/delete'}" method="post" style="display:inline;">
+                    <button type="submit" class="action-button delete-button">Удалить</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Пагинация -->
+    <div class="pagination" th:if="${knowledgePage.totalPages > 1}">
+        <a th:href="@{/api/v2/all(page=${knowledgePage.number - 1}, size=${knowledgePage.size}, sortField=${sortField}, sortDirection=${sortDirection}, questionContains=${filter.questionContains}, answerContains=${filter.answerContains}, bookmark=${filter.bookmark}, topic=${filter.topic})}"
+           th:classappend="${knowledgePage.first ? 'disabled' : ''}">Предыдущая</a>
+        <span th:each="i : ${#numbers.sequence(0, knowledgePage.totalPages - 1)}">
+                <a th:href="@{/api/v2/all(page=${i}, size=${knowledgePage.size}, sortField=${sortField}, sortDirection=${sortDirection}, questionContains=${filter.questionContains}, answerContains=${filter.answerContains}, bookmark=${filter.bookmark}, topic=${filter.topic})}"
+                   th:text="${i + 1}"
+                   th:classappend="${knowledgePage.number == i ? 'current' : ''}"></a>
+            </span>
+        <a th:href="@{/api/v2/all(page=${knowledgePage.number + 1}, size=${knowledgePage.size}, sortField=${sortField}, sortDirection=${sortDirection}, questionContains=${filter.questionContains}, answerContains=${filter.answerContains}, bookmark=${filter.bookmark}, topic=${filter.topic})}"
+           th:classappend="${knowledgePage.last ? 'disabled' : ''}">Следующая</a>
+    </div>
 </div>
-
-<a th:href="@{/api/v2/new}">Добавить новую запись</a>
 </body>
 </html>

@@ -3,6 +3,7 @@ package av.kolchenko.base.service;
 
 import av.kolchenko.base.web.dto.KnowledgeDtoV1;
 import av.kolchenko.base.entity.Knowledge;
+import av.kolchenko.base.entity.TopicType;
 import av.kolchenko.base.mapper.KnowledgeMapper;
 import av.kolchenko.base.repository.KnowledgeRepository;
 import com.vladsch.flexmark.html.HtmlRenderer;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
@@ -99,7 +101,6 @@ public class HtmlKnowledgeServiceImpl implements HtmlKnowledgeService {
         logger.info("Экспорт записи с ID: {}", id);
         logger.info("Путь для экспорта: {}", exportPath);
 
-        // Формируем имя файла: 'topic'-'question'.md
         String safeTopic = knowledge.getTopic() != null ? knowledge.getTopic().toString().replaceAll("[/\\\\:*?\"<>|]", "_") : "NoTopic";
         String rawQuestion = knowledge.getQuestion() != null && !knowledge.getQuestion().isEmpty() ? knowledge.getQuestion() : "NoQuestion";
         String safeQuestion = rawQuestion.replaceAll("^#+\\s*", "").replaceAll("[/\\\\:*?\"<>|]", "_").trim();
@@ -109,7 +110,6 @@ public class HtmlKnowledgeServiceImpl implements HtmlKnowledgeService {
         logger.info("Имя файла: {}", fileName);
         logger.info("Полный путь: {}", filePath);
 
-        // Структура Markdown
         StringBuilder markdownContent = new StringBuilder();
         markdownContent.append("Topic: \n## ").append(knowledge.getTopic() != null ? knowledge.getTopic() : "").append("\n\n");
         markdownContent.append("Question: \n").append(knowledge.getQuestion() != null ? knowledge.getQuestion() : "").append("\n\n");
@@ -129,8 +129,66 @@ public class HtmlKnowledgeServiceImpl implements HtmlKnowledgeService {
             logger.info("Файл успешно создан: {}", filePath);
         } catch (IOException e) {
             logger.error("Ошибка при экспорте в Markdown: {}", e.getMessage(), e);
-            throw e; // Пробрасываем исключение для обработки в контроллере
+            throw e;
         }
+    }
+
+    @Override
+    public KnowledgeDtoV1 importFromMarkdown(Long id, MultipartFile file) throws IOException {
+        if (file == null || file.isEmpty()) {
+            throw new IOException("Файл не выбран или пуст");
+        }
+
+        logger.info("Импорт данных из файла: {}", file.getOriginalFilename());
+        String content = new String(file.getBytes());
+
+        // Парсинг структуры Markdown
+        String topic = "";
+        String question = "";
+        String answer = "";
+        String[] lines = content.split("\n");
+
+        int section = 0; // 0 - Topic, 1 - Question, 2 - Answer
+        StringBuilder currentSection = new StringBuilder();
+        for (String line : lines) {
+            if (line.startsWith("Topic:")) {
+                section = 0;
+                continue;
+            } else if (line.startsWith("Question:")) {
+                topic = currentSection.toString().replaceAll("^#+\\s*", "").trim();
+                currentSection = new StringBuilder();
+                section = 1;
+                continue;
+            } else if (line.startsWith("Answer:")) {
+                question = currentSection.toString().trim();
+                currentSection = new StringBuilder();
+                section = 2;
+                continue;
+            }
+            currentSection.append(line).append("\n");
+        }
+        answer = currentSection.toString().trim();
+
+        // Создаем DTO с загруженными данными
+        TopicType topicEnum;
+        try {
+            topicEnum = topic.isEmpty() ? null : TopicType.valueOf(topic);
+        } catch (IllegalArgumentException e) {
+            logger.warn("Тема '{}' не соответствует TopicType, используется 'Other'", topic);
+            topicEnum = TopicType.Other;
+        }
+
+        KnowledgeDtoV1 importedKnowledge = new KnowledgeDtoV1(
+                id,
+                question,
+                answer,
+                false, // bookmark по умолчанию false
+                topicEnum
+        );
+
+        logger.info("Успешно импортированы данные для ID {}: topic={}, question={}, answer={}",
+                id, topic, question, answer);
+        return importedKnowledge;
     }
 
     private String convertMarkdownToHtml(String markdown) {

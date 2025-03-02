@@ -88,11 +88,11 @@
         </div>
     </form>
 
-    <!-- Форма для загрузки из Markdown -->
+    <!-- Форма для загрузки из Markdown с использованием input type="file" -->
     <form th:action="@{'/api/v2/' + ${id} + '/import-md'}" method="post" enctype="multipart/form-data">
         <div class="field">
-            <label for="filePath">Путь к файлу Markdown:</label>
-            <input type="text" id="filePath" name="filePath" placeholder="e:/exported_md/file.md" style="width: 70%; padding: 5px;">
+            <label for="markdownFile">Выберите файл Markdown:</label>
+            <input type="file" id="markdownFile" name="markdownFile" accept=".md">
             <button type="submit" class="import-button">Загрузить из md</button>
         </div>
         <div class="error" th:if="${error}" th:text="${error}"></div>
