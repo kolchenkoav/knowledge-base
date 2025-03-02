@@ -1,3 +1,4 @@
+// src/main/java/av/kolchenko/base/web/dto/KnowledgeDtoV1.java
 package av.kolchenko.base.web.dto;
 
 import av.kolchenko.base.entity.TopicType;
@@ -5,37 +6,19 @@ import av.kolchenko.base.entity.TopicType;
 import java.util.Objects;
 
 public class KnowledgeDtoV1 {
-    private Long id; // Add ID field
+    private Long id;
     private final String question;
     private final String answer;
-    private String shortAnswer; // Изменено на не-final для гибкости
     private final Boolean bookmark;
     private final TopicType topic;
 
-//    public KnowledgeDtoV1(String question, String answer, Boolean bookmark, TopicType topic) {
-//        this.question = question;
-//        this.answer = answer;
-//        this.shortAnswer = truncateAnswer(answer); // Обрезаем ответ
-//        this.bookmark = bookmark;
-//        this.topic = topic;
-//    }
-
-    // Метод для обрезки текста
-    private String truncateAnswer(String fullAnswer) {
-        if (fullAnswer == null || fullAnswer.length() <= 100) {
-            return fullAnswer;
-        }
-        return fullAnswer.substring(0, 100) + "..."; // Обрезаем до 100 символов и добавляем многоточие
-    }
-
     public KnowledgeDtoV1(Long id, String question, String answer, Boolean bookmark, TopicType topic) {
-            this.id = id;
-            this.question = question;
-            this.answer = answer;
-            this.shortAnswer = truncateAnswer(answer); // Обрезаем ответ
-            this.bookmark = bookmark;
-            this.topic = topic;
-        }
+        this.id = id;
+        this.question = question;
+        this.answer = answer;
+        this.bookmark = bookmark;
+        this.topic = topic;
+    }
 
     public Long getId() {
         return id;
@@ -61,15 +44,18 @@ public class KnowledgeDtoV1 {
         return topic;
     }
 
+    // Вычисляемое поле shortAnswer
     public String getShortAnswer() {
-        return shortAnswer;
+        return truncateAnswer(answer);
     }
 
-    public void setShortAnswer(String shortAnswer) {
-        this.shortAnswer = shortAnswer;
+    private String truncateAnswer(String fullAnswer) {
+        if (fullAnswer == null || fullAnswer.length() <= 100) {
+            return fullAnswer;
+        }
+        return fullAnswer.substring(0, 100) + "...";
     }
 
-    // Update equals, hashCode, and toString to include id...
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -78,14 +64,13 @@ public class KnowledgeDtoV1 {
         return Objects.equals(this.id, entity.id) &&
                 Objects.equals(this.question, entity.question) &&
                 Objects.equals(this.answer, entity.answer) &&
-                Objects.equals(this.shortAnswer, entity.shortAnswer) &&
                 Objects.equals(this.bookmark, entity.bookmark) &&
                 Objects.equals(this.topic, entity.topic);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, question, answer, shortAnswer, bookmark, topic);
+        return Objects.hash(id, question, answer, bookmark, topic);
     }
 
     @Override
@@ -94,7 +79,7 @@ public class KnowledgeDtoV1 {
                 "id = " + id + ", " +
                 "question = " + question + ", " +
                 "answer = " + answer + ", " +
-                "shortAnswer = " + shortAnswer + ", " +
+                "shortAnswer = " + getShortAnswer() + ", " +
                 "bookmark = " + bookmark + ", " +
                 "topic = " + topic + ")";
     }

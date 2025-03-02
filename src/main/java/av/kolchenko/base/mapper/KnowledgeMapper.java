@@ -1,3 +1,4 @@
+// src/main/java/av/kolchenko/base/mapper/KnowledgeMapper.java
 package av.kolchenko.base.mapper;
 
 import av.kolchenko.base.web.dto.KnowledgeDtoV1;
@@ -12,16 +13,7 @@ public interface KnowledgeMapper {
     Knowledge toEntity(KnowledgeDtoV1 knowledgeDtoV1);
 
     @Mapping(source = "id", target = "id")
-    @Mapping(target = "shortAnswer", expression = "java(truncateAnswer(knowledge.getAnswer()))") // Добавляем обрезку
-    KnowledgeDtoV1 toKnowledgeDtoV1(Knowledge knowledge);
+    KnowledgeDtoV1 toKnowledgeDtoV1(Knowledge knowledge); // shortAnswer теперь вычисляется в DTO
 
     Knowledge updateWithNull(KnowledgeDtoV1 knowledgeDtoV1, @MappingTarget Knowledge knowledge);
-
-    // Вспомогательный метод для обрезки
-    default String truncateAnswer(String answer) {
-        if (answer == null || answer.length() <= 100) {
-            return answer;
-        }
-        return answer.substring(0, 100) + "...";
-    }
 }
