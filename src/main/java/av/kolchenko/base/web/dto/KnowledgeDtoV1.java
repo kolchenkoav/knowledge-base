@@ -4,10 +4,8 @@ import av.kolchenko.base.entity.TopicType;
 
 import java.util.Objects;
 
-/**
- * DTO for {@link av.kolchenko.base.entity.Knowledge}
- */
 public class KnowledgeDtoV1 {
+    private Long id; // Add ID field
     private final String question;
     private final String answer;
     private final Boolean bookmark;
@@ -18,6 +16,22 @@ public class KnowledgeDtoV1 {
         this.answer = answer;
         this.bookmark = bookmark;
         this.topic = topic;
+    }
+
+//    public KnowledgeDtoV1(Long id, String question, String answer, Boolean bookmark, TopicType topic) {
+//        this.id = id;
+//        this.question = question;
+//        this.answer = answer;
+//        this.bookmark = bookmark;
+//        this.topic = topic;
+//    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getQuestion() {
@@ -36,12 +50,14 @@ public class KnowledgeDtoV1 {
         return topic;
     }
 
+    // Update equals, hashCode, and toString to include id...
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         KnowledgeDtoV1 entity = (KnowledgeDtoV1) o;
-        return Objects.equals(this.question, entity.question) &&
+        return Objects.equals(this.id, entity.id) &&
+                Objects.equals(this.question, entity.question) &&
                 Objects.equals(this.answer, entity.answer) &&
                 Objects.equals(this.bookmark, entity.bookmark) &&
                 Objects.equals(this.topic, entity.topic);
@@ -49,12 +65,13 @@ public class KnowledgeDtoV1 {
 
     @Override
     public int hashCode() {
-        return Objects.hash(question, answer, bookmark, topic);
+        return Objects.hash(id, question, answer, bookmark, topic);
     }
 
     @Override
     public String toString() {
         return getClass().getSimpleName() + "(" +
+                "id = " + id + ", " +
                 "question = " + question + ", " +
                 "answer = " + answer + ", " +
                 "bookmark = " + bookmark + ", " +

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Create Knowledge</title>
+</head>
+<body>
+<h1>Create New Knowledge</h1>
+<form th:action="@{/api/v2/new}" th:object="${knowledge}" method="post">
+  <label for="question">Question:</label>
+  <textarea id="question" name="question" th:field="*{question}"></textarea><br/>
+
+  <label for="answer">Answer:</label>
+  <textarea id="answer" name="answer" th:field="*{answer}"></textarea><br/>
+
+  <label for="bookmark">Bookmark:</label>
+  <input type="checkbox" id="bookmark" name="bookmark" th:field="*{bookmark}"/><br/>
+
+  <label for="topic">Topic:</label>
+  <select id="topic" name="topic" th:field="*{topic}">
+    <option value="">Select Topic</option>
+    <option th:each="topic : ${T(av.kolchenko.base.entity.TopicType).values()}"
+            th:value="${topic}" th:text="${topic}"></option>
+  </select><br/>
+
+  <button type="submit">Save</button>
+</form>
+<a th:href="@{/api/v2/all}">Back to List</a>
+</body>
+</html>

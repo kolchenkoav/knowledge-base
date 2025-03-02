@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Knowledge List</title>
+  <style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+    .pagination {
+        margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+<h1>Knowledge Base</h1>
+
+<!-- Filter Form -->
+<form th:action="@{/api/v2/all}" method="get">
+  <label for="questionContains">Question Contains:</label>
+  <input type="text" id="questionContains" name="questionContains" th:value="${filter.questionContains}"/>
+
+  <label for="answerContains">Answer Contains:</label>
+  <input type="text" id="answerContains" name="answerContains" th:value="${filter.answerContains}"/>
+
+  <label for="bookmark">Bookmark:</label>
+  <select id="bookmark" name="bookmark">
+    <option value="">All</option>
+    <option value="true" th:selected="${filter.bookmark == true}">True</option>
+    <option value="false" th:selected="${filter.bookmark == false}">False</option>
+  </select>
+
+  <label for="topic">Topic:</label>
+  <select id="topic" name="topic">
+    <option value="">All</option>
+    <option th:each="topic : ${T(av.kolchenko.base.entity.TopicType).values()}"
+            th:value="${topic}" th:text="${topic}" th:selected="${filter.topic == topic}"></option>
+  </select>
+
+  <button type="submit">Filter</button>
+</form>
+
+<!-- Knowledge Table -->
+<table>
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>Question</th>
+    <th>Answer</th>
+    <th>Bookmark</th>
+    <th>Topic</th>
+    <th>Actions</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="knowledge, iterStat : ${knowledgePage.content}">
+    <td th:text="${knowledgePage.content[iterStat.index].id}"></td>
+    <td th:utext="${knowledge.question}"></td>
+    <td th:utext="${knowledge.answer}"></td>
+    <td th:text="${knowledge.bookmark}"></td>
+    <td th:text="${knowledge.topic}"></td>
+    <td>
+      <a th:href="@{/api/v2/{id}(id=${knowledgePage.content[iterStat.index].id})}">View</a>
+      <a th:href="@{/api/v2/{id}/edit(id=${knowledgePage.content[iterStat.index].id})}">Edit</a>
+      <form th:action="@{/api/v2/{id}/delete(id=${knowledgePage.content[iterStat.index].id})}" method="post" style="display:inline;">
+        <button type="submit" onclick="return confirm('Are you sure?')">Delete</button>
+      </form>
+    </td>
+  </tr>
+  </tbody>
+</table>
+
+<!-- Pagination -->
+<div class="pagination">
+        <span th:if="${knowledgePage.hasPrevious()}">
+            <a th:href="@{/api/v2/all(page=${knowledgePage.number - 1}, size=${knowledgePage.size}, questionContains=${filter.questionContains}, answerContains=${filter.answerContains}, bookmark=${filter.bookmark}, topic=${filter.topic})}">Previous</a>
+        </span>
+  <span th:text="'Page ' + ${knowledgePage.number + 1} + ' of ' + ${knowledgePage.totalPages}"></span>
+  <span th:if="${knowledgePage.hasNext()}">
+            <a th:href="@{/api/v2/all(page=${knowledgePage.number + 1}, size=${knowledgePage.size}, questionContains=${filter.questionContains}, answerContains=${filter.answerContains}, bookmark=${filter.bookmark}, topic=${filter.topic})}">Next</a>
+        </span>
+</div>
+
+<!-- Add New Knowledge Button -->
+<a th:href="@{/api/v2/new}">Add New Knowledge</a>
+</body>
+</html>
