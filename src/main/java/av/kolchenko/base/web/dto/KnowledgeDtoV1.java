@@ -2,6 +2,7 @@
 package av.kolchenko.base.web.dto;
 
 import av.kolchenko.base.entity.TopicType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Objects;
 
@@ -27,6 +28,7 @@ public class KnowledgeDtoV1 {
         this.topic = topic;
     }
 
+    @JsonIgnore  // Исключаем id из JSON
     public Long getId() {
         return id;
     }
@@ -52,6 +54,7 @@ public class KnowledgeDtoV1 {
         this.shortAnswer = truncateAnswer(answer); // Обновляем shortAnswer при изменении answer
     }
 
+    @JsonIgnore  // Исключаем shortAnswer из JSON
     public String getShortAnswer() {
         return shortAnswer;
     }

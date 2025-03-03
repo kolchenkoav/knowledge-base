@@ -1,4 +1,3 @@
-// src/main/java/av/kolchenko/base/service/HtmlKnowledgeServiceImpl.java
 package av.kolchenko.base.service;
 
 import av.kolchenko.base.web.dto.KnowledgeDtoV1;
@@ -25,6 +24,7 @@ import java.io.IOException;
 public class HtmlKnowledgeServiceImpl implements HtmlKnowledgeService {
 
     private static final Logger logger = LoggerFactory.getLogger(HtmlKnowledgeServiceImpl.class);
+    private static final String EXPORT_PATH = "/export/"; // Жёстко задаём путь для экспорта
 
     private final KnowledgeRepository knowledgeRepository;
     private final KnowledgeMapper knowledgeMapper;
@@ -99,13 +99,13 @@ public class HtmlKnowledgeServiceImpl implements HtmlKnowledgeService {
     public void exportToMarkdown(Long id, String exportPath) throws IOException {
         KnowledgeDtoV1 knowledge = getKnowledgeRaw(id);
         logger.info("Экспорт записи с ID: {}", id);
-        logger.info("Путь для экспорта: {}", exportPath);
+        logger.info("Путь для экспорта: {}", EXPORT_PATH); // Теперь используем фиксированный путь
 
         String safeTopic = knowledge.getTopic() != null ? knowledge.getTopic().toString().replaceAll("[/\\\\:*?\"<>|]", "_") : "NoTopic";
         String rawQuestion = knowledge.getQuestion() != null && !knowledge.getQuestion().isEmpty() ? knowledge.getQuestion() : "NoQuestion";
         String safeQuestion = rawQuestion.replaceAll("^#+\\s*", "").replaceAll("[/\\\\:*?\"<>|]", "_").trim();
         String fileName = safeTopic + "-" + safeQuestion + ".md";
-        String filePath = exportPath + fileName;
+        String filePath = EXPORT_PATH + fileName;
 
         logger.info("Имя файла: {}", fileName);
         logger.info("Полный путь: {}", filePath);
@@ -142,13 +142,12 @@ public class HtmlKnowledgeServiceImpl implements HtmlKnowledgeService {
         logger.info("Импорт данных из файла: {}", file.getOriginalFilename());
         String content = new String(file.getBytes());
 
-        // Парсинг структуры Markdown
         String topic = "";
         String question = "";
         String answer = "";
         String[] lines = content.split("\n");
 
-        int section = 0; // 0 - Topic, 1 - Question, 2 - Answer
+        int section = 0;
         StringBuilder currentSection = new StringBuilder();
         for (String line : lines) {
             if (line.startsWith("Topic:")) {
@@ -169,7 +168,6 @@ public class HtmlKnowledgeServiceImpl implements HtmlKnowledgeService {
         }
         answer = currentSection.toString().trim();
 
-        // Создаем DTO с загруженными данными
         TopicType topicEnum;
         try {
             topicEnum = topic.isEmpty() ? null : TopicType.valueOf(topic);
@@ -182,7 +180,7 @@ public class HtmlKnowledgeServiceImpl implements HtmlKnowledgeService {
                 id,
                 question,
                 answer,
-                false, // bookmark по умолчанию false
+                false,
                 topicEnum
         );
 

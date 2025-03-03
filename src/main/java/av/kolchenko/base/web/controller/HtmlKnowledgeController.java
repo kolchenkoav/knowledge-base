@@ -97,7 +97,7 @@ public class HtmlKnowledgeController {
     @PostMapping("/{id}/export-md")
     public String exportToMarkdown(@PathVariable("id") Long id, Model model) {
         try {
-            htmlKnowledgeService.exportToMarkdown(id, exportPath);
+            htmlKnowledgeService.exportToMarkdown(id, null); // exportPath не используется, но оставляем для совместимости
         } catch (Exception e) {
             logger.error("Ошибка при экспорте в Markdown для ID {}: {}", id, e.getMessage(), e);
             model.addAttribute("error", "Не удалось экспортировать файл: " + e.getMessage());

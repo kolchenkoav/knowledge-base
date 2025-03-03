@@ -9,15 +9,16 @@ spring:
     generate-ddl: true
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/knowledgedb
-    username: postgres
-    password: postgres
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/knowledgedb}  # По умолчанию localhost
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
     hikari:
       schema: knowledgedb_schema
+      connection-init-sql: CREATE SCHEMA IF NOT EXISTS knowledgedb_schema
       connection-timeout: 10000
 
 server:
-  port: 8085
+  port: 8080
 
 parser:
   input-file-path: "e:/Основы Backend-разработки-chg.md"

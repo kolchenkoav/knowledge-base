@@ -165,12 +165,12 @@
     <div class="export-import-form">
         <form th:action="@{/api/v2/db/export}" method="post">
             <label for="exportFilePath">Путь для экспорта JSON:</label>
-            <input type="text" id="exportFilePath" name="filePath" placeholder="e:/export/knowledge.json" style="width: 70%;">
+            <input type="text" id="exportFilePath" name="filePath" value="/export/knowledge.json" style="width: 70%;">
             <button type="submit" class="action-button edit-button">Экспорт БД в JSON</button>
         </form>
         <form th:action="@{/api/v2/db/import}" method="post">
             <label for="importFilePath">Путь для импорта JSON:</label>
-            <input type="text" id="importFilePath" name="filePath" placeholder="e:/export/knowledge.json" style="width: 70%;">
+            <input type="text" id="importFilePath" name="filePath" value="/export/knowledge.json" style="width: 70%;">
             <button type="submit" class="action-button edit-button">Импорт БД из JSON</button>
         </form>
     </div>
