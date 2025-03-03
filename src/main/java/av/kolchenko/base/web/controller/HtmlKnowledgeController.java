@@ -36,7 +36,7 @@ public class HtmlKnowledgeController {
     }
 
     @GetMapping("/{id}")
-    public String getKnowledgeForm(@PathVariable Long id, Model model) {
+    public String getKnowledgeForm(@PathVariable("id") Long id, Model model) {
         KnowledgeDtoV1 knowledge = htmlKnowledgeService.getKnowledgeAsHtml(id);
         model.addAttribute("knowledge", knowledge);
         model.addAttribute("id", id);
@@ -44,7 +44,7 @@ public class HtmlKnowledgeController {
     }
 
     @GetMapping("/{id}/edit")
-    public String showEditForm(@PathVariable Long id, Model model) {
+    public String showEditForm(@PathVariable("id") Long id, Model model) {
         KnowledgeDtoV1 knowledge = htmlKnowledgeService.getKnowledgeRaw(id);
         model.addAttribute("knowledge", knowledge);
         model.addAttribute("id", id);
@@ -52,7 +52,7 @@ public class HtmlKnowledgeController {
     }
 
     @PostMapping("/{id}/edit")
-    public String saveEditedKnowledge(@PathVariable Long id,
+    public String saveEditedKnowledge(@PathVariable("id") Long id,
                                       @ModelAttribute KnowledgeDtoV1 updatedKnowledge,
                                       Model model) {
         htmlKnowledgeService.updateKnowledge(id, updatedKnowledge);
@@ -89,13 +89,13 @@ public class HtmlKnowledgeController {
     }
 
     @PostMapping("/{id}/delete")
-    public String deleteKnowledge(@PathVariable Long id) {
+    public String deleteKnowledge(@PathVariable("id") Long id) { // Исправлено: добавлено имя параметра
         knowledgeService.delete(id);
         return "redirect:/api/v2/all";
     }
 
     @PostMapping("/{id}/export-md")
-    public String exportToMarkdown(@PathVariable Long id, Model model) {
+    public String exportToMarkdown(@PathVariable("id") Long id, Model model) {
         try {
             htmlKnowledgeService.exportToMarkdown(id, exportPath);
         } catch (Exception e) {
@@ -110,7 +110,7 @@ public class HtmlKnowledgeController {
     }
 
     @PostMapping("/{id}/import-md")
-    public String importFromMarkdown(@PathVariable Long id,
+    public String importFromMarkdown(@PathVariable("id") Long id,
                                      @RequestParam("markdownFile") MultipartFile file,
                                      Model model) {
         try {

@@ -5,7 +5,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres_data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -16,5 +16,13 @@ services:
       timeout: 5s
       start_period: 10s
       retries: 5
+
+  knowledge-base:
+    image: knowledge-base:latest
+    build: .
+    restart: "no"
+    ports:
+      - "8085:8080"
+
 volumes:
   postgres_data:

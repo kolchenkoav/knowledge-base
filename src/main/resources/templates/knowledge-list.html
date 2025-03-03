@@ -36,7 +36,7 @@
         .delete-button {
             background-color: #f44336;
         }
-        .sort-form, .filter-form {
+        .sort-form, .filter-form, .export-import-form {
             margin-bottom: 20px;
         }
         .filter-field {
@@ -159,6 +159,20 @@
             </span>
         <a th:href="@{/api/v2/all(page=${knowledgePage.number + 1}, size=${knowledgePage.size}, sortField=${sortField}, sortDirection=${sortDirection}, questionContains=${filter.questionContains}, answerContains=${filter.answerContains}, bookmark=${filter.bookmark}, topic=${filter.topic})}"
            th:classappend="${knowledgePage.last ? 'disabled' : ''}">Следующая</a>
+    </div>
+
+    <!-- Форма для экспорта и импорта -->
+    <div class="export-import-form">
+        <form th:action="@{/api/v2/db/export}" method="post">
+            <label for="exportFilePath">Путь для экспорта JSON:</label>
+            <input type="text" id="exportFilePath" name="filePath" placeholder="e:/export/knowledge.json" style="width: 70%;">
+            <button type="submit" class="action-button edit-button">Экспорт БД в JSON</button>
+        </form>
+        <form th:action="@{/api/v2/db/import}" method="post">
+            <label for="importFilePath">Путь для импорта JSON:</label>
+            <input type="text" id="importFilePath" name="filePath" placeholder="e:/export/knowledge.json" style="width: 70%;">
+            <button type="submit" class="action-button edit-button">Импорт БД из JSON</button>
+        </form>
     </div>
 </div>
 </body>
