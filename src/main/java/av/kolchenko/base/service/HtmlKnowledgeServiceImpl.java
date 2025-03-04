@@ -133,6 +133,52 @@ public class HtmlKnowledgeServiceImpl implements HtmlKnowledgeService {
         }
     }
 
+    // В HtmlKnowledgeServiceImpl.java
+    @Override
+    public void exportToHtml(Long id, String exportPath) throws IOException {
+        KnowledgeDtoV1 knowledge = getKnowledgeAsHtml(id); // Используем уже существующий метод с HTML
+        logger.info("Экспорт записи с ID: {} в HTML", id);
+
+        String safeTopic = knowledge.getTopic() != null ? knowledge.getTopic().toString().replaceAll("[/\\\\:*?\"<>|]", "_") : "NoTopic";
+        String rawQuestion = knowledge.getQuestion() != null && !knowledge.getQuestion().isEmpty() ? knowledge.getQuestion() : "NoQuestion";
+        String safeQuestion = rawQuestion.replaceAll("^#+\\s*", "").replaceAll("[/\\\\:*?\"<>|]", "_").trim();
+        String fileName = safeTopic + "-" + safeQuestion + ".html";
+        String filePath = exportPath + fileName;
+
+        String htmlContent = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>%s</title>
+        </head>
+        <body>
+            <h1>Topic: %s</h1>
+            <h2>Question:</h2>
+            %s
+            <h2>Answer:</h2>
+            %s
+        </body>
+        </html>
+        """.formatted(
+                safeQuestion,
+                knowledge.getTopic() != null ? knowledge.getTopic() : "",
+                knowledge.getQuestion(),
+                knowledge.getAnswer()
+        );
+
+        File file = new File(filePath);
+        file.getParentFile().mkdirs();
+
+        try (FileWriter writer = new FileWriter(file)) {
+            writer.write(htmlContent);
+            logger.info("Успешно экспортирован HTML файл: {}", filePath);
+        } catch (IOException e) {
+            logger.error("Ошибка при экспорте в HTML: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
     @Override
     public KnowledgeDtoV1 importFromMarkdown(Long id, MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) {

@@ -9,4 +9,5 @@ public interface HtmlKnowledgeService {
     KnowledgeDtoV1 updateKnowledge(Long id, KnowledgeDtoV1 dto);
     void exportToMarkdown(Long id, String exportPath) throws Exception;
     KnowledgeDtoV1 importFromMarkdown(Long id, MultipartFile file) throws Exception;
+    void exportToHtml(Long id, String exportPath) throws Exception;
 }

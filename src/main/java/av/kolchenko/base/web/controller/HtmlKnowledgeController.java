@@ -109,6 +109,21 @@ public class HtmlKnowledgeController {
         return "redirect:/api/v2/" + id;
     }
 
+    @PostMapping("/{id}/export-html")
+    public String exportToHtml(@PathVariable("id") Long id, Model model) {
+        try {
+            htmlKnowledgeService.exportToHtml(id, exportPath); // Предполагаем, что метод будет добавлен в сервис
+            return "redirect:/api/v2/" + id;
+        } catch (Exception e) {
+            logger.error("Ошибка при экспорте в HTML для ID {}: {}", id, e.getMessage(), e);
+            model.addAttribute("error", "Не удалось экспортировать в HTML: " + e.getMessage());
+            KnowledgeDtoV1 knowledge = htmlKnowledgeService.getKnowledgeAsHtml(id);
+            model.addAttribute("knowledge", knowledge);
+            model.addAttribute("id", id);
+            return "knowledge-form";
+        }
+    }
+
     @PostMapping("/{id}/import-md")
     public String importFromMarkdown(@PathVariable("id") Long id,
                                      @RequestParam("markdownFile") MultipartFile file,
