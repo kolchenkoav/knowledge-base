@@ -138,12 +138,13 @@ public class HtmlKnowledgeServiceImpl implements HtmlKnowledgeService {
     public void exportToHtml(Long id, String exportPath) throws IOException {
         KnowledgeDtoV1 knowledge = getKnowledgeAsHtml(id); // Используем уже существующий метод с HTML
         logger.info("Экспорт записи с ID: {} в HTML", id);
+        logger.info("Путь для экспорта: {}", EXPORT_PATH); // Теперь используем фиксированный путь
 
         String safeTopic = knowledge.getTopic() != null ? knowledge.getTopic().toString().replaceAll("[/\\\\:*?\"<>|]", "_") : "NoTopic";
         String rawQuestion = knowledge.getQuestion() != null && !knowledge.getQuestion().isEmpty() ? knowledge.getQuestion() : "NoQuestion";
         String safeQuestion = rawQuestion.replaceAll("^#+\\s*", "").replaceAll("[/\\\\:*?\"<>|]", "_").trim();
         String fileName = safeTopic + "-" + safeQuestion + ".html";
-        String filePath = exportPath + fileName;
+        String filePath = EXPORT_PATH + fileName;
 
         String htmlContent = """
         <!DOCTYPE html>
