@@ -1,6 +1,7 @@
-Вот обновленный `README.md`, включающий информацию о **frontend**:
 
-# Knowledge Base
+<img src="/img/the-concept-of-the--knowledge-base-project--logo--.png" alt="Компьютер" width="500" height="500">
+
+
 
 ![Java](https://img.shields.io/badge/Java-21-blue) 
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.3-brightgreen) 
