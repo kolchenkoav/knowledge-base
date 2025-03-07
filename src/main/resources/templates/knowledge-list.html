@@ -5,22 +5,55 @@
     <meta charset="UTF-8">
     <title>Список знаний</title>
     <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #1A2533; /* Тёмно-синий фон для всей страницы */
+        }
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: #1A2533; /* Тёмно-синий */
+            color: #FFFFFF; /* Белый текст */
+            padding: 15px 20px;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Тень для глубины */
+        }
         .container {
             max-width: 1000px;
-            margin: 20px auto;
+            margin: 260px auto 160px;
             padding: 20px;
+            flex: 1;
+            background-color: #2C3E50; /* Чуть светлее тёмно-синий для основного контента */
+            color: #ECF0F1; /* Светлый текст для читаемости */
+            border-radius: 8px; /* Скругленные углы */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #1A2533; /* Тёмно-синий как в header */
+            color: #FFFFFF;
+            padding: 15px 20px;
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
         }
         table {
             width: 100%;
             border-collapse: collapse;
         }
         th, td {
-            border: 1px solid #ddd;
+            border: 1px solid #34495E; /* Тёмно-голубой для границ */
             padding: 10px;
             text-align: left;
         }
         th {
-            background-color: #f2f2f2;
+            background-color: #34495E; /* Тёмно-голубой для заголовков */
+            color: #ECF0F1;
         }
         .action-button {
             padding: 6px 12px;
@@ -29,38 +62,66 @@
             color: white;
             border-radius: 4px;
             display: inline-block;
+            transition: background-color 0.3s; /* Плавный переход цвета */
         }
         .edit-button {
-            background-color: #4CAF50;
+            background-color: #3498DB; /* Голубой для кнопок редактирования */
+        }
+        .edit-button:hover {
+            background-color: #2980B9; /* Темнее при наведении */
         }
         .delete-button {
-            background-color: #f44336;
+            background-color: #E74C3C; /* Красный для удаления */
         }
-        .sort-form, .filter-form, .export-import-form {
-            margin-bottom: 20px;
+        .delete-button:hover {
+            background-color: #C0392B; /* Темнее при наведении */
+        }
+        .sort-form, .filter-form {
+            margin: 15px 0;
+        }
+        .export-import-form {
+            margin: 15px 0;
         }
         .filter-field {
             margin-right: 15px;
+            display: inline-block;
+        }
+        .filter-form label, .sort-form label {
+            color: #FFFFFF;
         }
         .pagination {
-            margin-top: 20px;
+            margin: 15px 0;
         }
         .pagination a, .pagination span {
             padding: 5px 10px;
             margin-right: 5px;
             text-decoration: none;
-            color: #4CAF50;
+            color: #3498DB; /* Голубой для ссылок */
+        }
+        .pagination a:hover {
+            color: #2980B9; /* Темнее при наведении */
         }
         .pagination .current {
-            background-color: #4CAF50;
+            background-color: #3498DB;
             color: white;
             border-radius: 4px;
+        }
+        input, select {
+            background-color: #34495E; /* Тёмно-голубой фон для полей ввода */
+            color: #ECF0F1;
+            border: 1px solid #4A6078;
+            border-radius: 4px;
+            padding: 4px;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3498DB; /* Голубая рамка при фокусе */
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>Список знаний</h1>
+<header>
+    <h1>База знаний</h1>
     <a th:href="@{/api/v2/new}" class="action-button edit-button">Добавить новую запись</a>
 
     <!-- Форма для фильтрации -->
@@ -114,12 +175,17 @@
         </select>
         <label for="size">Записей на странице:</label>
         <select id="size" name="size">
-            <option value="5" th:selected="${knowledgePage.size == 5}">5</option>
-            <option value="10" th:selected="${knowledgePage.size == 10}">10</option>
-            <option value="20" th:selected="${knowledgePage.size == 20}">20</option>
+            <option value="7" th:selected="${knowledgePage.size == 7}">7</option>
+            <option value="15" th:selected="${knowledgePage.size == 15}">15</option>
+            <option value="30" th:selected="${knowledgePage.size == 30}">30</option>
         </select>
         <button type="submit" class="action-button edit-button">Применить</button>
     </form>
+</header>
+
+<div class="container">
+
+
 
     <table>
         <thead>
@@ -147,16 +213,18 @@
         </tr>
         </tbody>
     </table>
+</div>
 
+<footer>
     <!-- Пагинация -->
     <div class="pagination" th:if="${knowledgePage.totalPages > 1}">
         <a th:href="@{/api/v2/all(page=${knowledgePage.number - 1}, size=${knowledgePage.size}, sortField=${sortField}, sortDirection=${sortDirection}, questionContains=${filter.questionContains}, answerContains=${filter.answerContains}, bookmark=${filter.bookmark}, topic=${filter.topic})}"
            th:classappend="${knowledgePage.first ? 'disabled' : ''}">Предыдущая</a>
         <span th:each="i : ${#numbers.sequence(0, knowledgePage.totalPages - 1)}">
-                <a th:href="@{/api/v2/all(page=${i}, size=${knowledgePage.size}, sortField=${sortField}, sortDirection=${sortDirection}, questionContains=${filter.questionContains}, answerContains=${filter.answerContains}, bookmark=${filter.bookmark}, topic=${filter.topic})}"
-                   th:text="${i + 1}"
-                   th:classappend="${knowledgePage.number == i ? 'current' : ''}"></a>
-            </span>
+            <a th:href="@{/api/v2/all(page=${i}, size=${knowledgePage.size}, sortField=${sortField}, sortDirection=${sortDirection}, questionContains=${filter.questionContains}, answerContains=${filter.answerContains}, bookmark=${filter.bookmark}, topic=${filter.topic})}"
+               th:text="${i + 1}"
+               th:classappend="${knowledgePage.number == i ? 'current' : ''}"></a>
+        </span>
         <a th:href="@{/api/v2/all(page=${knowledgePage.number + 1}, size=${knowledgePage.size}, sortField=${sortField}, sortDirection=${sortDirection}, questionContains=${filter.questionContains}, answerContains=${filter.answerContains}, bookmark=${filter.bookmark}, topic=${filter.topic})}"
            th:classappend="${knowledgePage.last ? 'disabled' : ''}">Следующая</a>
     </div>
@@ -174,6 +242,7 @@
             <button type="submit" class="action-button edit-button">Импорт БД из JSON</button>
         </form>
     </div>
-</div>
+
+</footer>
 </body>
 </html>

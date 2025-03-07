@@ -5,25 +5,105 @@
     <meta charset="UTF-8">
     <title>Редактирование записи знаний</title>
     <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #1A2533;
+        }
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: #1A2533;
+            color: #FFFFFF;
+            padding: 15px 20px;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .question {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 1px solid #34495E;
+            border-radius: 4px;
+            background-color: #34495E;
+            color: #ECF0F1;
+            font-family: monospace;
+            resize: vertical;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            overflow-y: auto;
+            box-sizing: border-box;
+            vertical-align: top;
+            line-height: 1.5;
+        }
         .container {
             max-width: 800px;
-            margin: 20px auto;
+            margin: 200px auto 150px; /* Отступы для header и footer */
             padding: 20px;
+            background-color: #2C3E50;
+            color: #ECF0F1;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #1A2533;
+            color: #FFFFFF;
+            padding: 15px 20px;
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
         .field {
             margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
         }
-        textarea {
+        .answer-field {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 300px; /* Явная минимальная высота для поля ответа */
+        }
+        .answer {
             width: 100%;
-            min-height: 150px;
+            height: 100%; /* Занимает всю высоту .answer-field */
+            min-height: 300px; /* Минимальная высота для видимости */
             padding: 10px;
-            border: 1px solid #ddd;
+            border: 1px solid #34495E;
             border-radius: 4px;
+            background-color: #34495E;
+            color: #ECF0F1;
             font-family: monospace;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            line-height: 1.5;
+            resize: vertical;
+            box-sizing: border-box;
+            vertical-align: top;
         }
-        select {
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #ECF0F1;
+        }
+        select, input[type="file"] {
             padding: 5px;
+            border: 1px solid #34495E;
             border-radius: 4px;
+            background-color: #34495E;
+            color: #ECF0F1;
+        }
+        input[type="checkbox"] {
+            margin-right: 5px;
         }
         .save-button, .import-button {
             padding: 10px 20px;
@@ -31,72 +111,78 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            display: inline-block;
+            margin: 0 10px;
+            transition: background-color 0.3s;
         }
         .save-button {
-            background-color: #4CAF50;
+            background-color: #3498DB;
         }
         .save-button:hover {
-            background-color: #45a049;
+            background-color: #2980B9;
         }
         .import-button {
-            background-color: #2196F3;
+            background-color: #3498DB;
         }
         .import-button:hover {
-            background-color: #1976D2;
+            background-color: #2980B9;
         }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+        .metadata {
+            color: #BDC3C7;
+            font-size: 0.9em;
+            margin-bottom: 10px;
         }
         .error {
-            color: red;
+            color: #E74C3C;
             margin-top: 10px;
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>Редактирование записи</h1>
-    <form th:action="@{'/api/v2/' + ${id} + '/edit'}" th:object="${knowledge}" method="post">
+<form th:action="@{'/api/v2/' + ${id} + '/edit'}" th:object="${knowledge}" method="post">
+    <header>
+        <h1>Редактирование записи</h1>
         <div class="field">
             <label for="question">Вопрос (Markdown):</label>
-            <textarea id="question" th:field="*{question}" name="question"></textarea>
+            <textarea id="question" th:field="*{question}" name="question" class="question"></textarea>
         </div>
+    </header>
 
-        <div class="field">
+    <div class="container">
+        <div class="field answer-field">
             <label for="answer">Ответ (Markdown):</label>
-            <textarea id="answer" th:field="*{answer}" name="answer"></textarea>
+            <textarea id="answer" th:field="*{answer}" name="answer" class="answer"></textarea>
         </div>
+        <div class="error" th:if="${error}" th:text="${error}"></div>
+    </div>
 
-        <div class="field">
-            <label for="bookmark">Закладка:</label>
-            <input type="checkbox" id="bookmark" th:field="*{bookmark}" name="bookmark">
+    <footer>
+        <div class="metadata">
+            <div class="field">
+                <label for="bookmark">Закладка:</label>
+                <input type="checkbox" id="bookmark" th:field="*{bookmark}" name="bookmark">
+            </div>
+            <div class="field">
+                <label for="topic">Тема:</label>
+                <select id="topic" th:field="*{topic}" name="topic">
+                    <option th:each="topic : ${T(av.kolchenko.base.entity.TopicType).values()}"
+                            th:value="${topic}"
+                            th:text="${topic}"></option>
+                </select>
+            </div>
         </div>
+        <button type="submit" class="save-button">Сохранить</button>
+    </footer>
+</form>
 
-        <div class="field">
-            <label for="topic">Тема:</label>
-            <select id="topic" th:field="*{topic}" name="topic">
-                <option th:each="topic : ${T(av.kolchenko.base.entity.TopicType).values()}"
-                        th:value="${topic}"
-                        th:text="${topic}"></option>
-            </select>
-        </div>
-
-        <div>
-            <button type="submit" class="save-button">Сохранить</button>
-        </div>
-    </form>
-
-    <!-- Форма для загрузки из Markdown с использованием input type="file" -->
-    <form th:action="@{'/api/v2/' + ${id} + '/import-md'}" method="post" enctype="multipart/form-data">
+<form th:action="@{'/api/v2/' + ${id} + '/import-md'}" method="post" enctype="multipart/form-data" style="display:inline;">
+    <footer>
         <div class="field">
             <label for="markdownFile">Выберите файл Markdown:</label>
             <input type="file" id="markdownFile" name="markdownFile" accept=".md">
-            <button type="submit" class="import-button">Загрузить из md</button>
         </div>
-        <div class="error" th:if="${error}" th:text="${error}"></div>
-    </form>
-</div>
+        <button type="submit" class="import-button">Загрузить из md</button>
+    </footer>
+</form>
 </body>
 </html>

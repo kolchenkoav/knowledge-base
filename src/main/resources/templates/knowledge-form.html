@@ -5,22 +5,80 @@
     <meta charset="UTF-8">
     <title>Запись знаний</title>
     <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #1A2533; /* Тёмно-синий фон для всей страницы */
+        }
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: #1A2533; /* Тёмно-синий */
+            color: #FFFFFF; /* Белый текст */
+            padding: 15px 20px;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Тень для глубины */
+        }
+        .question {
+            border: 1px solid #34495E; /* Тёмно-голубая граница */
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #34495E; /* Тёмно-голубой фон */
+            color: #ECF0F1; /* Светлый текст */
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-height: 150px;
+            overflow-y: auto;
+        }
         .container {
             max-width: 800px;
-            margin: 20px auto;
+            margin: 180px auto 0; /* Отступ только сверху, снизу 0 */
             padding: 20px;
+            flex: 1; /* Контейнер растягивается на всё доступное пространство */
+            background-color: #2C3E50;
+            color: #ECF0F1;
+            border-radius: 8px 8px 0 0; /* Скругление только сверху */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #1A2533;
+            color: #FFFFFF;
+            padding: 15px 20px;
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
         .field {
             margin-bottom: 20px;
+            flex: 1; /* Поле растягивается внутри контейнера */
+            display: flex;
+            flex-direction: column;
         }
-        .question, .answer {
-            border: 1px solid #ddd;
+        .answer {
+            border: 1px solid #34495E;
             padding: 10px;
             border-radius: 4px;
+            background-color: #34495E;
+            color: #ECF0F1;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            flex: 1; /* Ответ занимает всё доступное пространство в .field */
+            overflow-y: auto; /* Прокрутка по вертикали */
+            white-space: pre-wrap;
+            line-height: 1.5;
         }
         .metadata {
-            color: #666;
+            color: #BDC3C7;
             font-size: 0.9em;
+            margin-bottom: 10px; /* Отступ перед кнопками */
         }
         .edit-button, .export-button {
             padding: 10px 20px;
@@ -30,54 +88,56 @@
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
-            margin-right: 10px;
+            margin: 0 10px;
+            transition: background-color 0.3s;
         }
         .edit-button {
-            background-color: #4CAF50;
+            background-color: #3498DB;
         }
         .edit-button:hover {
-            background-color: #45a049;
+            background-color: #2980B9;
         }
         .export-button {
-            background-color: #2196F3;
+            background-color: #3498DB;
         }
         .export-button:hover {
-            background-color: #1976D2;
+            background-color: #2980B9;
         }
         .error {
-            color: red;
+            color: #E74C3C;
             margin-top: 10px;
         }
     </style>
 </head>
 <body>
-<div class="container">
+<header>
     <div class="field">
-        <h2>Вопрос:</h2>
+<!--        <h2>Вопрос:</h2>-->
         <div class="question" th:utext="${knowledge.question}"></div>
     </div>
+</header>
 
+<div class="container">
     <div class="field">
         <h2>Ответ:</h2>
         <div class="answer" th:utext="${knowledge.answer}"></div>
     </div>
 
+    <div class="error" th:if="${error}" th:text="${error}"></div>
+</div>
+
+<footer>
     <div class="metadata">
         <p>Закладка: <span th:text="${knowledge.bookmark ? 'Да' : 'Нет'}"></span></p>
         <p>Тема: <span th:text="${knowledge.topic}"></span></p>
     </div>
-
-    <div>
-        <a th:href="@{'/api/v2/' + ${id} + '/edit'}" class="edit-button">Редактировать</a>
-        <form th:action="@{'/api/v2/' + ${id} + '/export-md'}" method="post" style="display:inline;">
-            <button type="submit" class="export-button">Экспорт в md</button>
-        </form>
-        <form th:action="@{'/api/v2/' + ${id} + '/export-html'}" method="post" style="display:inline;">
-            <button type="submit" class="export-button">Экспорт в HTML</button>
-        </form>
-    </div>
-
-    <div class="error" th:if="${error}" th:text="${error}"></div>
-</div>
+    <a th:href="@{'/api/v2/' + ${id} + '/edit'}" class="edit-button">Редактировать</a>
+    <form th:action="@{'/api/v2/' + ${id} + '/export-md'}" method="post" style="display:inline;">
+        <button type="submit" class="export-button">Экспорт в md</button>
+    </form>
+    <form th:action="@{'/api/v2/' + ${id} + '/export-html'}" method="post" style="display:inline;">
+        <button type="submit" class="export-button">Экспорт в HTML</button>
+    </form>
+</footer>
 </body>
 </html>

@@ -56,12 +56,12 @@ public class HtmlKnowledgeController {
                                       @ModelAttribute KnowledgeDtoV1 updatedKnowledge,
                                       Model model) {
         htmlKnowledgeService.updateKnowledge(id, updatedKnowledge);
-        return "redirect:/api/v2/all";
+        return "redirect:/api/v2/" + id.intValue();
     }
 
     @GetMapping("/all")
     public String getAllKnowledge(@ModelAttribute KnowledgeFilter filter,
-                                  @PageableDefault(size = 10) Pageable pageable,
+                                  @PageableDefault(size = 7) Pageable pageable,
                                   @RequestParam(value = "sortField", defaultValue = "id") String sortField,
                                   @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
                                   Model model) {
