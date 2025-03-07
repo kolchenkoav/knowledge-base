@@ -1,5 +1,5 @@
 
-<img src="/img/the-concept-of-the--knowledge-base-project--logo--.png" alt="Компьютер" width="500" height="500">
+<img src="/img/the-concept-of-the--knowledge-base-project--logo--.png" alt="" width="500" height="500">
 
 
 
