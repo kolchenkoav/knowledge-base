@@ -1,94 +1,104 @@
-<!-- src/main/resources/templates/knowledge-list.html -->
 <!DOCTYPE html>
 <html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Список знаний</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
+        /* Основной контейнер с Flexbox */
+        .container-fluid {
+            min-height: 100vh; /* Минимальная высота равна высоте окна браузера */
             display: flex;
             flex-direction: column;
-            background-color: #1A2533; /* Тёмно-синий фон для всей страницы */
+            padding: 0; /* Убираем внутренние отступы */
         }
-        header {
-            position: fixed;
-            top: 0;
+
+        /* Главная часть (содержимое) */
+        .content {
+            overflow-y: hidden; /* Скрываем вертикальную прокрутку для секции */
+            flex-grow: 1; /* Растяжение основного содержимого, чтобы занять оставшееся пространство */
+            padding-left: 0; /* Убираем внутренние панели слева */
+        }
+
+        /* Ограничиваем высоту таблицы */
+        .table-responsive {
+            max-height: calc(100vh - 450px); /* Высоту таблицы ограничиваем, учитывая высоту заголовка и подвала */
+            overflow-y: auto; /* Включаем вертикальную прокрутку для таблицы */
+            margin-left: 0; /* Убираем левый отступ */
+            padding-left: 0; /* Убираем левую внутреннюю панель */
+        }
+
+        /* Подвал */
+        .row-footer {
             width: 100%;
-            background-color: #1A2533; /* Тёмно-синий */
-            color: #FFFFFF; /* Белый текст */
-            padding: 15px 20px;
-            z-index: 1000;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Тень для глубины */
+            height: 110px;
+            background-color: #ddd;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between; /* Размещаем секции по горизонтали */
+            align-items: center;
+            margin: auto;
         }
-        .container {
-            max-width: 1000px;
-            margin: 260px auto 160px;
-            padding: 20px;
-            flex: 1;
-            background-color: #2C3E50; /* Чуть светлее тёмно-синий для основного контента */
-            color: #ECF0F1; /* Светлый текст для читаемости */
-            border-radius: 8px; /* Скругленные углы */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        .footer-section {
+			background-color: lightgray;
+			border: 1px none;
+			color: gray;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-evenly; /* Равномерное распределение элементов формы по высоте */
+            box-sizing: border-box;
+            padding: 10px; /* Внутренние отступы для секций */
         }
-        footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background-color: #1A2533; /* Тёмно-синий как в header */
-            color: #FFFFFF;
-            padding: 15px 20px;
-            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-        }
+        /* Стили для таблицы */
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-left: 0; /* Убираем левый отступ */
         }
-        th, td {
-            border: 1px solid #34495E; /* Тёмно-голубой для границ */
+
+        td, th {
+            border: 1px solid #ccc;
             padding: 10px;
-            text-align: left;
         }
-        th {
-            background-color: #34495E; /* Тёмно-голубой для заголовков */
-            color: #ECF0F1;
+
+         /* Заголовок */
+        .header {
+            width: 100%;
+            height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .action-button {
-            padding: 6px 12px;
+
+        /* Горизонтальные секции в заголовке */
+        .header-section {
+            box-sizing: border-box; /* Учитываем внутренние отступы в ширину */
+            padding: 20px; /* Внутренние отступы для секций */
+            border: 1px solid gray;
+<!--            border-radius: 5px;-->
+            background-color: lightgray;
+            width: 100%;
+            display: flex;
+            flex-direction: column; /* Располагаем надписи вертикально */
+            justify-content: space-evenly; /* Равномерное распределение надписей по высоте */
+            align-items: left; /* Выравнивание надписей по левому краю */
+            padding: 10px; /* Внутренние отступы для секций */
+        }
+        .row-header {
+            background-color: lightgray;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            width: 100%;
             margin-right: 10px;
-            text-decoration: none;
-            color: white;
-            border-radius: 4px;
-            display: inline-block;
-            transition: background-color 0.3s; /* Плавный переход цвета */
+            padding: 10px;
         }
-        .edit-button {
-            background-color: #3498DB; /* Голубой для кнопок редактирования */
-        }
-        .edit-button:hover {
-            background-color: #2980B9; /* Темнее при наведении */
-        }
-        .delete-button {
-            background-color: #E74C3C; /* Красный для удаления */
-        }
-        .delete-button:hover {
-            background-color: #C0392B; /* Темнее при наведении */
-        }
-        .sort-form, .filter-form {
-            margin: 15px 0;
-        }
-        .export-import-form {
-            margin: 15px 0;
-        }
-        .filter-field {
-            margin-right: 15px;
-            display: inline-block;
-        }
-        .filter-form label, .sort-form label {
-            color: #FFFFFF;
-        }
+<!--        .form-group {-->
+<!--            margin-bottom: 50px;-->
+<!--        }-->
         .pagination {
             margin: 15px 0;
         }
@@ -106,143 +116,155 @@
             color: white;
             border-radius: 4px;
         }
-        input, select {
-            background-color: #34495E; /* Тёмно-голубой фон для полей ввода */
-            color: #ECF0F1;
-            border: 1px solid #4A6078;
-            border-radius: 4px;
-            padding: 4px;
-        }
-        input:focus, select:focus {
-            outline: none;
-            border-color: #3498DB; /* Голубая рамка при фокусе */
-        }
     </style>
+
 </head>
 <body>
-<header>
-    <h1>База знаний</h1>
-    <a th:href="@{/api/v2/new}" class="action-button edit-button">Добавить новую запись</a>
-
-    <!-- Форма для фильтрации -->
-    <form th:action="@{/api/v2/all}" method="get" class="filter-form" th:object="${filter}">
-        <div class="filter-field">
-            <label for="questionContains">Вопрос содержит:</label>
-            <input type="text" id="questionContains" name="questionContains" th:value="*{questionContains}">
+<div class="container-fluid">
+    <div class="row-header">
+        <div class="header-section">
+            <h3>База знаний</h3>
+            <a th:href="@{/api/v2/new}" class="btn btn-primary  btn-sm">Добавить новую запись</a>
         </div>
-        <div class="filter-field">
-            <label for="answerContains">Ответ содержит:</label>
-            <input type="text" id="answerContains" name="answerContains" th:value="*{answerContains}">
+        <div class="header-section">
+            <!-- Форма для сортировки и размера страницы -->
+            <form th:action="@{/api/v2/all}" method="get" class="sort-form">
+
+                <div class="form-group mb-3">
+                    <input type="hidden" name="questionContains" th:value="${filter.questionContains}">
+                    <input type="hidden" name="answerContains" th:value="${filter.answerContains}">
+                    <input type="hidden" name="bookmark" th:value="${filter.bookmark}">
+                    <input type="hidden" name="topic" th:value="${filter.topic}">
+                    <label for="sortField" class="form-label">Сортировать по:</label>
+                    <select id="sortField" name="sortField" class="form-select">
+                        <option value="id" th:selected="${sortField == 'id'}">ID</option>
+                        <option value="question" th:selected="${sortField == 'question'}">Вопрос</option>
+                        <option value="answer" th:selected="${sortField == 'answer'}">Ответ</option>
+                        <option value="topic" th:selected="${sortField == 'topic'}">Тема</option>
+                        <option value="bookmark" th:selected="${sortField == 'bookmark'}">Закладка</option>
+                    </select>
+                    <select id="sortDirection" name="sortDirection" class="form-select">
+                        <option value="ASC" th:selected="${sortDirection == 'ASC'}">По возрастанию</option>
+                        <option value="DESC" th:selected="${sortDirection == 'DESC'}">По убыванию</option>
+                    </select>
+                    <label for="size" class="form-label">Записей на странице:</label>
+                    <select id="size" name="size" class="form-select">
+                        <option value="7" th:selected="${knowledgePage.size == 7}">7</option>
+                        <option value="15" th:selected="${knowledgePage.size == 15}">15</option>
+                        <option value="30" th:selected="${knowledgePage.size == 30}">30</option>
+                    </select>
+                    <button type="submit" class="btn btn-success btn-sm">Применить</button>
+                </div>
+            </form>
         </div>
-        <div class="filter-field">
-            <label for="bookmark">Закладка:</label>
-            <select id="bookmark" name="bookmark">
-                <option value="" th:selected="${filter.bookmark == null}">Все</option>
-                <option value="true" th:selected="${filter.bookmark == true}">Да</option>
-                <option value="false" th:selected="${filter.bookmark == false}">Нет</option>
-            </select>
+
+        <!-- Форма для фильтрации -->
+        <div class="header-section">
+            <form th:action="@{/api/v2/all}" method="get" class="filter-form" th:object="${filter}">
+
+                <div class="form-floating mb-3">
+                    <!--                                            <label for="questionContains">Вопрос содержит:</label>-->
+                    <input type="text" id="floatingInput" name="questionContains" class="form-control"
+
+                           th:value="*{questionContains}">
+                    <label for="floatingInput">Вопрос содержит</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <!--                        <label for="answerContains" class="form-label">Ответ содержит:</label>-->
+                    <input type="text" id="floatingInput1" name="answerContains" class="form-control"
+                           th:value="*{answerContains}">
+                    <label for="floatingInput1">Ответ содержит</label>
+                </div>
+                <div class="mb-3">
+                    <!--                    <label for="bookmark" class="form-label">Закладка:</label>-->
+                    <select id="bookmark" name="bookmark" class="form-select form-select-sm"
+                            aria-label="Small select example">
+                        <option selected>Закладка:</option>
+                        <option value="" th:selected="${filter.bookmark == null}">Все</option>
+                        <option value="true" th:selected="${filter.bookmark == true}">Да</option>
+                        <option value="false" th:selected="${filter.bookmark == false}">Нет</option>
+                    </select>
+                </div>
+                <div class="filter-field">
+                    <!--                    <label for="topic" class="form-label">Тема:</label>-->
+                    <select id="topic" name="topic" class="form-select form-select-sm"
+                            aria-label="Small select example">
+                        <option selected>Тема:</option>
+                        <option value="" th:selected="${filter.topic == null}">Все</option>
+                        <option th:each="topic : ${T(av.kolchenko.base.entity.TopicType).values()}"
+                                th:value="${topic}"
+                                th:text="${topic}"
+                                th:selected="${filter.topic == topic}"></option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success btn-sm">Фильтровать</button>
+            </form>
         </div>
-        <div class="filter-field">
-            <label for="topic">Тема:</label>
-            <select id="topic" name="topic">
-                <option value="" th:selected="${filter.topic == null}">Все</option>
-                <option th:each="topic : ${T(av.kolchenko.base.entity.TopicType).values()}"
-                        th:value="${topic}"
-                        th:text="${topic}"
-                        th:selected="${filter.topic == topic}"></option>
-            </select>
+    </div>
+
+    <div class="content">
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered mb-0">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Вопрос</th>
+                    <th>Краткий ответ</th>
+                    <th>Тема</th>
+                    <th>Действия</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="knowledge : ${knowledgePage.content}">
+                    <td th:text="${knowledge.id}"></td>
+                    <td th:text="${knowledge.question}"></td>
+                    <td th:text="${knowledge.shortAnswer}"></td>
+                    <td th:text="${knowledge.topic}"></td>
+                    <td>
+                        <a th:href="@{'/api/v2/' + ${knowledge.id}}" class="btn btn-secondary btn-sm">Просмотр</a>
+                        <a th:href="@{'/api/v2/' + ${knowledge.id} + '/edit'}"
+                           class="btn btn-secondary btn-sm">Редактировать</a>
+                        <form th:action="@{'/api/v2/' + ${knowledge.id} + '/delete'}" method="post"
+                              style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
-        <button type="submit" class="action-button edit-button">Фильтровать</button>
-    </form>
+    </div>
 
-    <!-- Форма для сортировки и размера страницы -->
-    <form th:action="@{/api/v2/all}" method="get" class="sort-form">
-        <input type="hidden" name="questionContains" th:value="${filter.questionContains}">
-        <input type="hidden" name="answerContains" th:value="${filter.answerContains}">
-        <input type="hidden" name="bookmark" th:value="${filter.bookmark}">
-        <input type="hidden" name="topic" th:value="${filter.topic}">
-        <label for="sortField">Сортировать по:</label>
-        <select id="sortField" name="sortField">
-            <option value="id" th:selected="${sortField == 'id'}">ID</option>
-            <option value="question" th:selected="${sortField == 'question'}">Вопрос</option>
-            <option value="answer" th:selected="${sortField == 'answer'}">Ответ</option>
-            <option value="topic" th:selected="${sortField == 'topic'}">Тема</option>
-            <option value="bookmark" th:selected="${sortField == 'bookmark'}">Закладка</option>
-        </select>
-        <select id="sortDirection" name="sortDirection">
-            <option value="ASC" th:selected="${sortDirection == 'ASC'}">По возрастанию</option>
-            <option value="DESC" th:selected="${sortDirection == 'DESC'}">По убыванию</option>
-        </select>
-        <label for="size">Записей на странице:</label>
-        <select id="size" name="size">
-            <option value="7" th:selected="${knowledgePage.size == 7}">7</option>
-            <option value="15" th:selected="${knowledgePage.size == 15}">15</option>
-            <option value="30" th:selected="${knowledgePage.size == 30}">30</option>
-        </select>
-        <button type="submit" class="action-button edit-button">Применить</button>
-    </form>
-</header>
-
-<div class="container">
-
-
-
-    <table>
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Вопрос</th>
-            <th>Краткий ответ</th>
-            <th>Тема</th>
-            <th>Действия</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="knowledge : ${knowledgePage.content}">
-            <td th:text="${knowledge.id}"></td>
-            <td th:text="${knowledge.question}"></td>
-            <td th:text="${knowledge.shortAnswer}"></td>
-            <td th:text="${knowledge.topic}"></td>
-            <td>
-                <a th:href="@{'/api/v2/' + ${knowledge.id}}" class="action-button edit-button">Просмотр</a>
-                <a th:href="@{'/api/v2/' + ${knowledge.id} + '/edit'}" class="action-button edit-button">Редактировать</a>
-                <form th:action="@{'/api/v2/' + ${knowledge.id} + '/delete'}" method="post" style="display:inline;">
-                    <button type="submit" class="action-button delete-button">Удалить</button>
-                </form>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-</div>
-
-<footer>
-    <!-- Пагинация -->
-    <div class="pagination" th:if="${knowledgePage.totalPages > 1}">
-        <a th:href="@{/api/v2/all(page=${knowledgePage.number - 1}, size=${knowledgePage.size}, sortField=${sortField}, sortDirection=${sortDirection}, questionContains=${filter.questionContains}, answerContains=${filter.answerContains}, bookmark=${filter.bookmark}, topic=${filter.topic})}"
-           th:classappend="${knowledgePage.first ? 'disabled' : ''}">Предыдущая</a>
-        <span th:each="i : ${#numbers.sequence(0, knowledgePage.totalPages - 1)}">
+    <div class="row-footer">
+        <!-- Пагинация -->
+        <div class="pagination mb-3 footer-section" th:if="${knowledgePage.totalPages > 1}">
+            <a th:href="@{/api/v2/all(page=${knowledgePage.number - 1}, size=${knowledgePage.size}, sortField=${sortField}, sortDirection=${sortDirection}, questionContains=${filter.questionContains}, answerContains=${filter.answerContains}, bookmark=${filter.bookmark}, topic=${filter.topic})}"
+               th:classappend="${knowledgePage.first ? 'disabled' : ''}">Предыдущая</a>
+            <span th:each="i : ${#numbers.sequence(0, knowledgePage.totalPages - 1)}">
             <a th:href="@{/api/v2/all(page=${i}, size=${knowledgePage.size}, sortField=${sortField}, sortDirection=${sortDirection}, questionContains=${filter.questionContains}, answerContains=${filter.answerContains}, bookmark=${filter.bookmark}, topic=${filter.topic})}"
                th:text="${i + 1}"
                th:classappend="${knowledgePage.number == i ? 'current' : ''}"></a>
         </span>
-        <a th:href="@{/api/v2/all(page=${knowledgePage.number + 1}, size=${knowledgePage.size}, sortField=${sortField}, sortDirection=${sortDirection}, questionContains=${filter.questionContains}, answerContains=${filter.answerContains}, bookmark=${filter.bookmark}, topic=${filter.topic})}"
-           th:classappend="${knowledgePage.last ? 'disabled' : ''}">Следующая</a>
-    </div>
+            <a th:href="@{/api/v2/all(page=${knowledgePage.number + 1}, size=${knowledgePage.size}, sortField=${sortField}, sortDirection=${sortDirection}, questionContains=${filter.questionContains}, answerContains=${filter.answerContains}, bookmark=${filter.bookmark}, topic=${filter.topic})}"
+               th:classappend="${knowledgePage.last ? 'disabled' : ''}">Следующая</a>
+        </div>
 
-    <!-- Форма для экспорта и импорта -->
-    <div class="export-import-form">
-        <form th:action="@{/api/v2/db/export}" method="post">
-            <label for="exportFilePath">Путь для экспорта JSON:</label>
-            <input type="text" id="exportFilePath" name="filePath" value="/export/knowledge.json" style="width: 70%;">
-            <button type="submit" class="action-button edit-button">Экспорт БД в JSON</button>
-        </form>
-        <form th:action="@{/api/v2/db/import}" method="post">
-            <label for="importFilePath">Путь для импорта JSON:</label>
-            <input type="text" id="importFilePath" name="filePath" value="/export/knowledge.json" style="width: 70%;">
-            <button type="submit" class="action-button edit-button">Импорт БД из JSON</button>
-        </form>
+        <!-- Форма для экспорта и импорта -->
+        <div class="mb-3 footer-section">
+            <form th:action="@{/api/v2/db/export}" method="post">
+<!--                <label for="exportFilePath" class="form-label">Путь для экспорта JSON:</label>-->
+                <input type="text" id="exportFilePath" name="filePath" value="/export/knowledge.json"
+                       style="width: 70%;">
+                <button type="submit" class="btn btn-secondary btn-sm">Экспорт БД в JSON</button>
+            </form>
+            <form th:action="@{/api/v2/db/import}" method="post">
+<!--                <label for="importFilePath" class="form-label">Путь для импорта JSON:</label>-->
+                <input type="text" id="importFilePath" name="filePath" value="/export/knowledge.json"
+                       style="width: 70%;">
+                <button type="submit" class="btn btn-secondary btn-sm">Импорт БД из JSON</button>
+            </form>
+        </div>
     </div>
-
-</footer>
+</div>
 </body>
 </html>
